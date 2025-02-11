@@ -4,10 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Envelope extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','name', 'budgeted_amount', 'spent_amount']; // Add this line
+    protected $fillable = ['user_id','title', 'total', 'goal', 'notes']; // Add this line
+
+    public function user(): BelongsTo {
+        return $this->belongsTo(User::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }
