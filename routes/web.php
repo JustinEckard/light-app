@@ -20,12 +20,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/envelopes/store', [EnvelopeController::class, 'store'])->name('envelopes.store');
-    Route::get('/envelopes/list', [EnvelopeController::class, 'list'])->name('envelopes.list');
-    Route::post('/transactions/store', [TransactionController::class, 'store'])->name('transactions.store');
-    Route::get('/transactions/list', [TransactionController::class, 'list'])->name('transactions.list');
-
-
     Route::post('/envelopes', [EnvelopeController::class, 'store'])->name('envelopes.store');
     Route::delete('/envelopes/{envelope}', [EnvelopeController::class, 'destroy'])->name('envelopes.destroy');
     Route::post('/transactions/{envelope}', [TransactionController::class, 'store'])->name('transactions.store');
