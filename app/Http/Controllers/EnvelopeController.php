@@ -1,34 +1,41 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
+
 use App\Models\Envelope;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Helpers\Helpers;
+
 
 class EnvelopeController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware('auth');
-    }
-
-    // Store a new envelope (AJAX request)
     public function store(Request $request)
     {
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'budgeted_amount' => 'required|numeric|min:0',
+            'title' => 'required|string|max:255',
+            'goal' => 'required|numeric|min:0',
         ]);
-
+        
         Envelope::create([
-            'name' => $request->name,
-            'budgeted_amount' => $request->budgeted_amount,
-            'spent_amount' => 0,
+            'title' => $request->title,
+            'goal' => $request->goal,
+            'total' => 0,
             'user_id' => Auth::id(),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Envelope created successfully!']);
+        return redirect()->route('dashboard')->with('success', 'Envelope added successfully.');
+    }
+
+    public function destroy(Envelope $envelope)
+    {
+        $envelope->delete();
+        Helpers::updateUserTotal(Auth::user());
+        return redirect()->route('dashboard')->with('success', 'Envelope deleted successfully.');
     }
 
     // Return a list of envelopes (for AJAX)
@@ -36,4 +43,5 @@ class EnvelopeController extends Controller
     {
         return response()->json(Envelope::all());
     }
+
 }

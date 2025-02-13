@@ -3,49 +3,77 @@
 namespace App\Http\Controllers;
 
 use App\Models\Envelope;
+use App\Http\Controllers\EnvelopeController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Helpers\Helpers;
 
 
 class TransactionController extends Controller
 {
-    public function store(Request $request, $envelopeId)
+    public function store(Request $request, Envelope $envelope)
     {
-        $request->validate([
-            'description' => 'required|string|max:100',
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
             'amount' => 'required|numeric',
-            'type' => 'required|string|in:income,expense',
+            'type' => 'required|in:expense,income',
         ]);
 
-        // Create the transaction
-        $amount = $request->amount;
+        $transaction_value = $validated['amount'];
 
-        if($request->type == 'expense' ){
-            $amount = $request->amount*-1;
+        if ($validated['type'] === 'expense'){
+            $transaction_value = -$transaction_value;
         }
 
-        Transaction::create([
-            'user_id' => Auth::id(), // Authenticated users
-            'envelope_id' => $envelopeId,
-            'description' => $request->description,
-            'type' => $request->type,
-            'amount' => $amount,
-        ]);
 
-        // Update the envelope's total
-        // $envelope = Envelope::findOrFail($envelopeId);
-        // $envelope->updateTotal();
 
-        // $user = User::findOrFail(Auth::id());
-        // $user->updateTotal();
+        
 
-        return back()->with('success', 'Transaction added successfully.');
+        $new_transaction = [
+            'title' => $validated['title'],
+            'amount' => $transaction_value,
+            'type' => $validated['type'],
+            'envelope_id' => $envelope->id,
+        ];
+        $transaction = new Transaction($new_transaction);
+
+        // protected $fillable = [ 'envelope_id', 'title', 'type', 'amount'];
+        $transaction->envelope()->associate($envelope);
+        $transaction->save();
+
+        $total = 0;
+        foreach ($envelope->transactions as $transaction) {
+            $total += $transaction->amount;
+        }
+        $envelope->total = $total;
+        $envelope->save();
+
+
+        Helpers::updateUserTotal(Auth::user());
+        return redirect()->route('dashboard')->with('success', 'Transaction added successfully.');
+    }
+
+    public function destroy(Envelope $envelope, Transaction $transaction)
+    {
+        $transaction->delete();
+        $total = 0;
+        foreach ($envelope->transactions as $transaction) {
+            $total += $transaction->amount;
+        }
+        $envelope->total = $total;
+        $envelope->save();
+
+        Helpers::updateUserTotal(Auth::user());
+
+        return redirect()->route('dashboard')->with('success', 'Transaction deleted successfully.');
     }
 
     public function list()
     {
         return response()->json(Transaction::all());
     }
+
+
 }
