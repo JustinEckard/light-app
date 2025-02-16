@@ -4,7 +4,7 @@
 
 
 .main-container {
-    @apply max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 bg-sky-200 ;
+    @apply max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 bg-orange-200 ;
 }
 
 h2 {

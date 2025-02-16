@@ -27,10 +27,6 @@ class TransactionController extends Controller
             $transaction_value = -$transaction_value;
         }
 
-
-
-        
-
         $new_transaction = [
             'title' => $validated['title'],
             'amount' => $transaction_value,
@@ -39,9 +35,11 @@ class TransactionController extends Controller
         ];
         $transaction = new Transaction($new_transaction);
 
-        // protected $fillable = [ 'envelope_id', 'title', 'type', 'amount'];
         $transaction->envelope()->associate($envelope);
         $transaction->save();
+
+        // Reload transactions relationship
+        $envelope->load('transactions');
 
         $total = 0;
         foreach ($envelope->transactions as $transaction) {
@@ -50,7 +48,6 @@ class TransactionController extends Controller
         $envelope->total = $total;
         $envelope->save();
 
-
         Helpers::updateUserTotal(Auth::user());
         return redirect()->route('dashboard')->with('success', 'Transaction added successfully.');
     }
@@ -58,6 +55,10 @@ class TransactionController extends Controller
     public function destroy(Envelope $envelope, Transaction $transaction)
     {
         $transaction->delete();
+
+        // Reload transactions relationship
+        $envelope->load('transactions');
+
         $total = 0;
         foreach ($envelope->transactions as $transaction) {
             $total += $transaction->amount;

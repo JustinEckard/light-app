@@ -7,9 +7,9 @@
 <div class="container  main-container">
 
     <div class="card mt-2">
-        <div class="card-header">
+        {{-- <div class="card-header">
             <span class="text-xl mb-2 block">Total: ${{ Auth::user()->total }}</span>
-        </div>
+        </div> --}}
 
         <div class="card-body">
             <form id="envelopeForm" method="POST" action="{{ route('envelopes.store') }}" class="flex justify-between items-end mb-3">
@@ -33,7 +33,7 @@
         <div class="card-body">
             <ul id="envelopeList" class="list-group">
                 @foreach($envelopes as $envelope)
-                    <li class="list-group-item  p-6 bg-green-100 rounded-md  mb-6 shadow-sm mt-6">
+                    <li class="list-group-item  p-6 bg-blue-300 rounded-md  mb-6 shadow-sm mt-6">
                         {{-- @dump($envelope) --}}
                         <div class="flex justify-between w-full items-center">
                             <h3>{{ $envelope->title }}</h5>
@@ -73,7 +73,8 @@
                         <div class="list-group mt-4">
                             <p class="mb-2 text-lg font-bold"> Transactions</p>
                             @foreach($envelope->transactions as $transaction)
-                                <div class="list-group-item flex justify-between items-center py-1 px-4 bg-blue-200 mb-3 rounded-md border-slate-500 shadow-md">
+                            <div class="list-group-item flex justify-between items-center py-1 px-4 mb-3 rounded-md border-slate-500 shadow-md
+                                @if ($transaction->type == 'expense') bg-red-200 @else bg-green-200 @endif">
                                     <div class="content py-3">
                                         <strong>{{ $transaction->title }}</strong> - ${{ $transaction->amount }} ({{ $transaction->type }})
                                     </div>
